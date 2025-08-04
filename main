@@ -1,5 +1,6 @@
 module mux (input wire a,b,s 
-            output reg o);
+            output reg o
+            output reg a);
     always @(a or b or s) begin
         if (s== 1'b1) begin
             o=a;
