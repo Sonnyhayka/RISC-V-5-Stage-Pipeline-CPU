@@ -1,0 +1,16 @@
+module programCounter(
+    input wire clk,
+    input wire en,
+    input wire reset,
+    input wire [31, 0] PCnext,
+    output reg [31, 0] PC
+);
+
+always @(posedge clk or posedge reset) begin
+    if (en)
+        PC <= PCnext;
+    else if (reset)
+        PC = 32'b0;
+end
+
+endmodule
