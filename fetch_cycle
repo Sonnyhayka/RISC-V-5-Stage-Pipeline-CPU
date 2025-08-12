@@ -1,0 +1,51 @@
+`timescale 1ns / 1ps
+
+module instructionFetch(clk, rst, InstrD, PCD);
+    // IO Allocations
+    input wire clk;
+    input wire rst;
+    output wire [31:0] InstrD;
+    output wire [31:0] PCD;
+    
+    // Wire for operations
+    wire [31:0] PC;
+    wire [31:0] PCnext;
+    wire [31:0] instr;
+    
+    // Registers for storing respective values
+    reg [31:0] PC_reg;
+    reg [31:0] PCnext_reg;
+    reg[31:0] instr_reg;
+    
+    // Declare Program Counter
+    programCounter PC_module(
+        .rst(rst),
+        .clk(clk),
+        .PCnext(PCnext),
+        .PC(PC)
+        );
+        
+    // Declare Instruction Memory
+    instructionMemory IM_module(
+        .addr(PC),
+        .rd(instr),
+        .rst(rst)
+        );
+    
+    // Logic for resetting or storing values in registers
+    always @(posedge clk) begin
+        if (rst) begin
+            PC_reg <= 32'b0;
+            PCnext_reg <= 32'b0;
+            instr_reg <= 32'b0;
+        end else begin
+            PC_reg <= PC;
+            PCnext_reg <= PCnext;
+            instr_reg <= instr;
+        end
+    end
+    
+    // Assigning reg values to IOs
+    assign InstrD = instr_reg;
+    assign PCD = PC_reg;
+endmodule
