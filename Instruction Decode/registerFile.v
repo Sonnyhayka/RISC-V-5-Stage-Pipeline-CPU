@@ -2,9 +2,9 @@
 
 module registerFile(a1, a2, a3, rd1, rd2, wd3, we3, clk, rst);
     input wire clk, rst;
-    input wire we3, wd3;
+    input wire we3;
     input wire [4:0] a1, a2, a3;
-    output wire [31:0] rd1, rd2;
+    output wire [31:0] rd1, rd2, wd3;
     
     reg [31:0] regFile [31:0];
     
