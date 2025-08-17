@@ -30,23 +30,15 @@ Stages
 * Self checking testbench and example programs
 
 ## Repository Layout
-    /src
-      alu.v
-      control.v
-      hazard_unit.v
-      forwarding_unit.v
-      register_file.v
-      instruction_memory.v
-      data_memory.v
-      pipeline_regs.v
-      branch_unit.v
-      cpu_core.v
-      cpu_top.v
+    /Instruction Decode
+      ALUDecoder.v
+      controlUnit.v
+      mainDecoder.v
     /testbench
       cpu_tb.v
       program_mem_init.mem
     /docs
-      architecture_diagram.png
+      *** Will be updated later* 
       instruction_set.md
     /scripts
       build_modelsim.do
@@ -79,21 +71,8 @@ Stages
 
 3. View waves  add these for a good first look
 
-        cpu_tb.dut.pc
-        cpu_tb.dut.if_id_*
-        cpu_tb.dut.id_ex_*
-        cpu_tb.dut.ex_mem_*
-        cpu_tb.dut.mem_wb_*
-        cpu_tb.dut.regfile.regs
-        cpu_tb.dut.alu.result
-        cpu_tb.dut.data_memory.mem
 
 4. Load your own program  edit testbench/program_mem_init.mem  one 32 bit hex word per line  comment lines start with semicolon
-
-        ; example
-        20080005
-        21090003
-        01095020
 
    Or modify src/instruction_memory.v to point at a different mem file
 
