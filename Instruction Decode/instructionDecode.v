@@ -10,6 +10,7 @@ module instructionDecode(
     output wire [1:0] ResultSrcE,                  // Result source control to Execute stage
     output wire [2:0] ALUControlE,                 // ALU control to Execute stage
     output wire [4:0] RdE,                         // Destination register address to Execute stage
+    output wire [4:0] Rs1E, Rs2E,                 // Source register addresses to Execute stage  
     output wire [31:0] RD1_E, RD2_E, ImmExtE, PCE, PCPlus4E // Register values, immediate, PC, and PC+4 to Execute stage
     );
     
@@ -20,11 +21,16 @@ module instructionDecode(
     wire [4:0] RdD;
     wire [31:0] RD1_D, RD2_D, ImmExtD;
     
+    // Extract register addresses and destination register from instruction
+    assign RdD = InstrD[11:7];  // Destination register rd
+    wire [4:0] Rs1D = InstrD[19:15]; // Source register 1 rs1
+    wire [4:0] Rs2D = InstrD[24:20]; // Source register 2 rs2
+    
     // Pipeline registers to hold signals between Decode and Execute stages
     reg RegWriteD_reg, MemWriteD_reg, JumpD_reg, BranchD_reg, ALUSrcD_reg; 
     reg [1:0] ResultSrcD_reg;
     reg [2:0] ALUControlD_reg;
-    reg [4:0] RdD_reg;
+    reg [4:0] RdD_reg, Rs1D_reg, Rs2D_reg;
     reg [31:0] RD1_D_reg, RD2_D_reg, PCD_reg, ImmExtD_reg, PCPlus4D_reg;
     
     // Instantiate control unit: decodes instruction to control signals
@@ -73,6 +79,8 @@ module instructionDecode(
             ResultSrcD_reg <= 2'b0;
             ALUControlD_reg <= 3'b0;
             RdD_reg <= 5'b0;
+            Rs1D_reg <= 5'b0;
+            Rs2D_reg <= 5'b0;
             RD1_D_reg <= 32'b0;
             RD2_D_reg <= 32'b0;
             PCD_reg <= 32'b0;
@@ -87,6 +95,8 @@ module instructionDecode(
             ResultSrcD_reg <= ResultSrcD;
             ALUControlD_reg <= ALUControlD;
             RdD_reg <= RdD;
+            Rs1D_reg <= Rs1D;
+            Rs2D_reg <= Rs2D;
             RD1_D_reg <= RD1_D;
             RD2_D_reg <= RD2_D;
             PCD_reg <= PCD;
@@ -107,6 +117,8 @@ module instructionDecode(
     assign RD2_E = RD2_D_reg;
     assign PCE = PCD_reg;
     assign RdE = RdD_reg;
+    assign Rs1E = Rs1D_reg;
+    assign Rs2E = Rs2D_reg;
     assign ImmExtE = ImmExtD_reg;
     assign PCPlus4E = PCPlus4D_reg;
 endmodule

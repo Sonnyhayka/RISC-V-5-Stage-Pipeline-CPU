@@ -17,5 +17,7 @@ module ALUDecoder(
                         ((ALUOp == 2'b10) & (funct3 == 3'b010)) ? 3'b101 : //slt
                         ((ALUOp == 2'b10) & (funct3 == 3'b110)) ? 3'b011 : //or
                         ((ALUOp == 2'b10) & (funct3 == 3'b111)) ? 3'b010 : //and
-                        3'b111; //otherwise, do nothing
+                        ((ALUOp == 2'b10) & (funct3 == 3'b001)) ? 3'b110 : //sll
+                        ((ALUOp == 2'b10) & (funct3 == 3'b101)) ? 3'b111 : //srl
+                        3'b000; //default to add
 endmodule
