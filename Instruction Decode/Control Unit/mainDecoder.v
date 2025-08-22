@@ -6,37 +6,37 @@ module mainDecoder(
     output wire [1:0] ResultSrc, ImmSrc, ALUOp
     );
     
-    // beq
+    // Branch: High for branch instructions (BEQ, BNE, etc.)
     assign Branch = (op == 7'b1100011) ? 1'b1 : 1'b0;
     
-    // jal
-    assign Jump = (op == 7'b1101111) ? 1'b1 : 1'b0;
+    // Jump: High for jump instructions (JAL, JALR)
+    assign Jump = (op == 7'b1101111 | op == 7'b1100111) ? 1'b1 : 1'b0;
 
-    // sw
+    // MemWrite: High for store instructions (SW)
     assign MemWrite = (op == 7'b0100011) ? 1'b1 : 1'b0;
     
-    // lw, sw, I-type ALU
-    assign ALUSrc = (op == 7'b0000011 | op == 7'b0100011 | op == 7'b0010011) ?
-                    1'b1 : 1'b0;
+    // ALUSrc: High for instructions that use immediate (LW, SW, I-type ALU, LUI, AUIPC)
+    assign ALUSrc = (op == 7'b0000011 | op == 7'b0100011 | op == 7'b0010011 | 
+                     op == 7'b0110111 | op == 7'b0010111) ? 1'b1 : 1'b0;
                     
-    // lw, R-type, I-type ALU, jal
-    assign RegWrite = (op == 7'b0000011 | op == 7'b0110011 | op == 7'b0010011 | op == 7'b1101111) ?
-                      1'b1 : 1'b0;
+    // RegWrite: High for instructions that write to register file
+    assign RegWrite = (op == 7'b0000011 | op == 7'b0110011 | op == 7'b0010011 | 
+                       op == 7'b1101111 | op == 7'b1100111 | op == 7'b0110111 | 
+                       op == 7'b0010111) ? 1'b1 : 1'b0;
                     
-    // lw jal                  
-    assign ResultSrc = (op == 7'b0000011) ? 2'b01 :
-                       (op == 7'b1101111) ? 2'b10 :
-                       2'b00;
+    // ResultSrc: 01 for load, 10 for jump, 00 for ALU result
+    assign ResultSrc = (op == 7'b0000011) ? 2'b01 :  // Load instructions
+                       (op == 7'b1101111 | op == 7'b1100111) ? 2'b10 :  // Jump instructions
+                       2'b00;  // ALU result
     
-    // sw, beq, jal                   
-    assign ImmSrc = (op == 7'b0100011) ? 2'b01 :
-                    (op == 7'b1100011) ? 2'b10 :
-                    (op == 7'b1101111) ? 2'b11 :
-                    2'b00; 
+    // ImmSrc: Immediate type selection
+    assign ImmSrc = (op == 7'b0100011) ? 2'b01 :     // S-type (SW)
+                    (op == 7'b1100011) ? 2'b10 :     // B-type (Branch)
+                    (op == 7'b1101111) ? 2'b11 :     // J-type (JAL)
+                    2'b00;                            // I-type (default)
     
-    // R-type, beq, I-type ALU                
-    assign ALUOp = (op == 7'b0110011) ? 2'b10 :
-                   (op == 7'b1100011) ? 2'b01 :
-                   (op == 7'b0010011) ? 2'b10 :
-                   2'b00;                             
+    // ALUOp: Operation type for ALU decoder
+    assign ALUOp = (op == 7'b0110011 | op == 7'b0010011) ? 2'b10 :  // R-type and I-type ALU
+                   (op == 7'b1100011) ? 2'b01 :                     // Branch (subtract for comparison)
+                   2'b00;                                            // Load/Store (add)                             
 endmodule
