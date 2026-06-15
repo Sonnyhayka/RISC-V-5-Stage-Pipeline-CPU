@@ -1,0 +1,27 @@
+# Local-only design docs (specs, plans, working notes)
+docs/
+
+# Simulation build artifacts
+sim/*.vvp
+sim/*.out
+sim/*.vcd
+sim/*.fst
+sim/*.lxt
+*.vvp
+*.vcd
+*.fst
+
+# Vivado project and output artifacts
+RISCV_Pipeline_CPU/
+.Xil/
+*.jou
+*.log
+*.str
+*.rpt
+*.dcp
+*.bit
+usage_statistics_webtalk.*
+
+# OS / editor cruft
+Thumbs.db
+.DS_Store
