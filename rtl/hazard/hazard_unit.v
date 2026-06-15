@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
 
 module hazard_unit(
+    input wire [4:0] Rs1D,
+    input wire [4:0] Rs2D,
     input wire [4:0] Rs1E,
     input wire [4:0] Rs2E,
     input wire [4:0] RdE,
@@ -8,7 +10,7 @@ module hazard_unit(
     input wire [4:0] RdW,
     input wire RegWriteM,
     input wire RegWriteW,
-    input wire ResultSrcE,
+    input wire MemReadE,
     input wire PCSrcE,
     output reg [1:0] ForwardAE,
     output reg [1:0] ForwardBE,
@@ -18,7 +20,7 @@ module hazard_unit(
     output wire FlushE
 );
     wire lwStall;
-    assign lwStall = ResultSrcE & ((Rs1E == RdE) | (Rs2E == RdE)) & (RdE != 5'b0);
+    assign lwStall = MemReadE & ((Rs1D == RdE) | (Rs2D == RdE)) & (RdE != 5'b0);
 
     assign StallF = lwStall;
     assign StallD = lwStall;

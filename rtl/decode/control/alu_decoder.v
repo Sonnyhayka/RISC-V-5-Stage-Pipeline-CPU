@@ -4,16 +4,27 @@ module ALUDecoder(
     input wire [1:0] ALUOp,
     input wire [2:0] funct3,
     input wire [6:0] funct7, op,
-    output wire [2:0] ALUControl
+    output reg [3:0] ALUControl
 );
-    assign ALUControl = (ALUOp == 2'b00) ? 3'b000 :
-        (ALUOp == 2'b01) ? 3'b001 :
-        ((ALUOp == 2'b10) & (funct3 == 3'b000) & ({op[5], funct7[5]}) == 2'b11) ? 3'b001 :
-        ((ALUOp == 2'b10) & (funct3 == 3'b000) & ({op[5], funct7[5]}) != 2'b11) ? 3'b000 :
-        ((ALUOp == 2'b10) & (funct3 == 3'b010)) ? 3'b101 :
-        ((ALUOp == 2'b10) & (funct3 == 3'b110)) ? 3'b011 :
-        ((ALUOp == 2'b10) & (funct3 == 3'b111)) ? 3'b010 :
-        ((ALUOp == 2'b10) & (funct3 == 3'b001)) ? 3'b110 :
-        ((ALUOp == 2'b10) & (funct3 == 3'b101)) ? 3'b111 :
-        3'b000;
+    wire RtypeSub = op[5] & funct7[5];
+
+    always @(*) begin
+        case (ALUOp)
+            2'b00: ALUControl = 4'b0000;
+            2'b01: ALUControl = 4'b0001;
+            default: begin
+                case (funct3)
+                    3'b000: ALUControl = RtypeSub ? 4'b0001 : 4'b0000;
+                    3'b001: ALUControl = 4'b0111;
+                    3'b010: ALUControl = 4'b0101;
+                    3'b011: ALUControl = 4'b0110;
+                    3'b100: ALUControl = 4'b0100;
+                    3'b101: ALUControl = funct7[5] ? 4'b1001 : 4'b1000;
+                    3'b110: ALUControl = 4'b0011;
+                    3'b111: ALUControl = 4'b0010;
+                    default: ALUControl = 4'b0000;
+                endcase
+            end
+        endcase
+    end
 endmodule

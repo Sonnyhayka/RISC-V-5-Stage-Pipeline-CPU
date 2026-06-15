@@ -4,6 +4,9 @@ module instructionFetch(
     input wire clk,
     input wire rst,
     input wire PCSrcE,
+    input wire StallF,
+    input wire StallD,
+    input wire FlushD,
     input wire [31:0] PCTargetE,
     output wire [31:0] InstrD,
     output wire [31:0] PCD,
@@ -16,6 +19,7 @@ module instructionFetch(
     programCounter PC_module(
         .clk(clk),
         .rst(rst),
+        .en(~StallF),
         .PCnext(PCnextF),
         .PC(PCF)
     );
@@ -43,7 +47,11 @@ module instructionFetch(
             PCF_reg <= 32'b0;
             PCPlus4F_reg <= 32'b0;
             instr_reg <= 32'b0;
-        end else begin
+        end else if (FlushD) begin
+            PCF_reg <= 32'b0;
+            PCPlus4F_reg <= 32'b0;
+            instr_reg <= 32'b0;
+        end else if (~StallD) begin
             PCF_reg <= PCF;
             PCPlus4F_reg <= PCPlus4F;
             instr_reg <= instrF;

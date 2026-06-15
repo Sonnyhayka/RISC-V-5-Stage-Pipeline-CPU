@@ -30,5 +30,7 @@ fi
 
 # Full regression suite (testbenches are added as each instruction class lands).
 status=0
+run_one ../tb/tb_alu.v tb_alu || status=1
 run_one ../tb/tb_baseline.v tb_baseline || status=1
+run_one ../tb/tb_full.v tb_full || status=1
 exit $status

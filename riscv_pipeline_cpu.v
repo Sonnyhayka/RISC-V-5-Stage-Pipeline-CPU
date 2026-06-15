@@ -6,14 +6,16 @@ module riscv_pipeline_cpu(
 );
     wire [31:0] InstrD, PCD, PCPlus4D;
 
-    wire RegWriteE, MemWriteE, JumpE, BranchE, ALUSrcE;
-    wire [1:0] ResultSrcE;
-    wire [2:0] ALUControlE;
+    wire RegWriteE, MemWriteE, MemReadE, JumpE, BranchE, JumpSrcE, ALUSrcE;
+    wire [1:0] ResultSrcE, ALUSrcAE;
+    wire [3:0] ALUControlE;
+    wire [2:0] funct3E;
     wire [4:0] RdE, Rs1E, Rs2E;
     wire [31:0] RD1_E, RD2_E, ImmExtE, PCE, PCPlus4E;
 
     wire RegWriteM, MemWriteM, MemReadM;
     wire [1:0] ResultSrcM;
+    wire [2:0] funct3M;
     wire [4:0] RdM;
     wire [31:0] ALUResultM, WriteDataM, PCPlus4M;
 
@@ -28,10 +30,16 @@ module riscv_pipeline_cpu(
     wire StallF, StallD, FlushD, FlushE;
     wire [1:0] ForwardAE, ForwardBE;
 
+    wire [4:0] Rs1D = InstrD[19:15];
+    wire [4:0] Rs2D = InstrD[24:20];
+
     instructionFetch IF_stage(
         .clk(clk),
         .rst(rst),
         .PCSrcE(PCSrcE),
+        .StallF(StallF),
+        .StallD(StallD),
+        .FlushD(FlushD),
         .PCTargetE(PCTargetE),
         .InstrD(InstrD),
         .PCD(PCD),
@@ -41,6 +49,7 @@ module riscv_pipeline_cpu(
     instructionDecode ID_stage(
         .clk(clk),
         .rst(rst),
+        .FlushE(FlushE),
         .RegWriteW(RegWriteW),
         .RDW(RdW),
         .ResultW(ResultW),
@@ -49,11 +58,15 @@ module riscv_pipeline_cpu(
         .PCPlus4D(PCPlus4D),
         .RegWriteE(RegWriteE),
         .MemWriteE(MemWriteE),
+        .MemReadE(MemReadE),
         .JumpE(JumpE),
         .BranchE(BranchE),
+        .JumpSrcE(JumpSrcE),
         .ALUSrcE(ALUSrcE),
         .ResultSrcE(ResultSrcE),
+        .ALUSrcAE(ALUSrcAE),
         .ALUControlE(ALUControlE),
+        .funct3E(funct3E),
         .RdE(RdE),
         .Rs1E(Rs1E),
         .Rs2E(Rs2E),
@@ -69,11 +82,15 @@ module riscv_pipeline_cpu(
         .rst(rst),
         .RegWriteE(RegWriteE),
         .MemWriteE(MemWriteE),
+        .MemReadE(MemReadE),
         .JumpE(JumpE),
         .BranchE(BranchE),
+        .JumpSrcE(JumpSrcE),
         .ALUSrcE(ALUSrcE),
         .ResultSrcE(ResultSrcE),
+        .ALUSrcAE(ALUSrcAE),
         .ALUControlE(ALUControlE),
+        .funct3E(funct3E),
         .RdE(RdE),
         .Rs1E(Rs1E),
         .Rs2E(Rs2E),
@@ -90,6 +107,7 @@ module riscv_pipeline_cpu(
         .MemWriteM(MemWriteM),
         .MemReadM(MemReadM),
         .ResultSrcM(ResultSrcM),
+        .funct3M(funct3M),
         .RdM(RdM),
         .ALUResultM_out(ALUResultM),
         .WriteDataM(WriteDataM),
@@ -105,6 +123,7 @@ module riscv_pipeline_cpu(
         .store_data_in(WriteDataM),
         .pc_plus4_in(PCPlus4M),
         .rd_addr_in(RdM),
+        .funct3_in(funct3M),
         .memRead_in(MemReadM),
         .memWrite_in(MemWriteM),
         .regWrite_in(RegWriteM),
@@ -126,6 +145,8 @@ module riscv_pipeline_cpu(
     );
 
     hazard_unit HU(
+        .Rs1D(Rs1D),
+        .Rs2D(Rs2D),
         .Rs1E(Rs1E),
         .Rs2E(Rs2E),
         .RdE(RdE),
@@ -133,7 +154,7 @@ module riscv_pipeline_cpu(
         .RdW(RdW),
         .RegWriteM(RegWriteM),
         .RegWriteW(RegWriteW),
-        .ResultSrcE(ResultSrcE[0]),
+        .MemReadE(MemReadE),
         .PCSrcE(PCSrcE),
         .ForwardAE(ForwardAE),
         .ForwardBE(ForwardBE),

@@ -9,6 +9,7 @@ module memory_cycle #(
     input [31:0] store_data_in,
     input [31:0] pc_plus4_in,
     input [4:0] rd_addr_in,
+    input [2:0] funct3_in,
     input memRead_in,
     input memWrite_in,
     input regWrite_in,
@@ -20,14 +21,27 @@ module memory_cycle #(
     output reg regWrite_out,
     output reg [1:0] resultSrc_out
 );
-    reg [31:0] data_mem [0:MEM_DEPTH-1];
-    wire [31:0] mem_read = data_mem[alu_result_in[31:2]];
+    wire [31:0] mem_word, store_word, load_result;
+    wire [3:0] byte_we;
 
-    always @(posedge clk) begin
-        if (memWrite_in) begin
-            data_mem[alu_result_in[31:2]] <= store_data_in;
-        end
-    end
+    loadStoreUnit lsu(
+        .funct3(funct3_in),
+        .addr(alu_result_in[1:0]),
+        .memWrite(memWrite_in),
+        .storeData(store_data_in),
+        .readWord(mem_word),
+        .byteWE(byte_we),
+        .writeData(store_word),
+        .loadResult(load_result)
+    );
+
+    dataMemory #(.MEM_DEPTH(MEM_DEPTH)) dmem(
+        .clk(clk),
+        .Addr(alu_result_in),
+        .WriteData(store_word),
+        .ByteWE(byte_we),
+        .ReadData(mem_word)
+    );
 
     always @(posedge clk) begin
         if (rst) begin
@@ -38,7 +52,7 @@ module memory_cycle #(
             regWrite_out <= 1'b0;
             resultSrc_out <= 2'b0;
         end else begin
-            read_data_out <= memRead_in ? mem_read : 32'b0;
+            read_data_out <= memRead_in ? load_result : 32'b0;
             alu_result_out <= alu_result_in;
             pc_plus4_out <= pc_plus4_in;
             rd_addr_out <= rd_addr_in;

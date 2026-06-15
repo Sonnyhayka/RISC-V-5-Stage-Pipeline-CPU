@@ -24,7 +24,9 @@ module tb_baseline;
     endtask
 
     initial begin
-        #20 rst = 0;
+        #1;
+        $readmemh("../tb/programs/base.hex", dut.IF_stage.IM_module.Mem);
+        #19 rst = 0;
         #200;
         check(1, 32'd5);
         check(2, 32'd3);
