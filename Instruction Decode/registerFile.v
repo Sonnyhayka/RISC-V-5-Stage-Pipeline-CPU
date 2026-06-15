@@ -29,7 +29,10 @@ module registerFile(
         end
     end
 
-    // asynchronous read ports with x0 hardwired to zero
-    assign rd1 = (a1 == 5'b0) ? 32'b0 : regFile[a1];
-    assign rd2 = (a2 == 5'b0) ? 32'b0 : regFile[a2];
+    // Asynchronous read ports, x0 hardwired to zero, write-first bypass so a
+    // read returns data written to the same register in the same cycle.
+    assign rd1 = (a1 == 5'b0)                          ? 32'b0 :
+                 (we3 && (a3 == a1) && (a3 != 5'b0))   ? wd3   : regFile[a1];
+    assign rd2 = (a2 == 5'b0)                          ? 32'b0 :
+                 (we3 && (a3 == a2) && (a3 != 5'b0))   ? wd3   : regFile[a2];
 endmodule
