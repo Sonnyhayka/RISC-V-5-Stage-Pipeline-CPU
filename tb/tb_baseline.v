@@ -1,8 +1,5 @@
 `timescale 1ns/1ps
 
-// Self-checking baseline testbench: runs the original 8-instruction arithmetic
-// program and verifies the architectural register file by hierarchical reference.
-// This is the green gate that must stay passing throughout the refactor.
 module tb_baseline;
     reg clk = 0;
     reg rst = 1;
@@ -13,12 +10,12 @@ module tb_baseline;
     always #5 clk = ~clk;
 
     task check;
-        input [4:0]  r;
+        input [4:0] r;
         input [31:0] exp;
         begin
             if (dut.ID_stage.Register_File.regFile[r] !== exp) begin
                 $display("FAIL x%0d = %h (expected %h)",
-                         r, dut.ID_stage.Register_File.regFile[r], exp);
+                    r, dut.ID_stage.Register_File.regFile[r], exp);
                 errors = errors + 1;
             end else begin
                 $display("PASS x%0d = %h", r, exp);
@@ -27,9 +24,8 @@ module tb_baseline;
     endtask
 
     initial begin
-        #20 rst = 0;   // release reset after two cycles
-        #200;          // let the program drain through the pipeline
-
+        #20 rst = 0;
+        #200;
         check(1, 32'd5);
         check(2, 32'd3);
         check(3, 32'd8);
@@ -38,7 +34,6 @@ module tb_baseline;
         check(6, 32'd0);
         check(7, 32'd7);
         check(8, 32'd1);
-
         if (errors == 0) $display("ALL TESTS PASSED");
         else begin
             $display("%0d FAILURES", errors);

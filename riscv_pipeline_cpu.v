@@ -1,43 +1,33 @@
-// Top-level RISC-V 5-Stage Pipeline CPU Module
 `timescale 1ns / 1ps
 
 module riscv_pipeline_cpu(
-    input  wire        clk,          // Clock signal
-    input  wire        rst           // Reset signal (active high)
+    input wire clk,
+    input wire rst
 );
-    // Pipeline register wires between stages
-    
-    // IF/ID Pipeline Register outputs
     wire [31:0] InstrD, PCD, PCPlus4D;
-    
-    // ID/EX Pipeline Register outputs  
-    wire        RegWriteE, MemWriteE, JumpE, BranchE, ALUSrcE;
-    wire [1:0]  ResultSrcE;
-    wire [2:0]  ALUControlE;
-    wire [4:0]  RdE, Rs1E, Rs2E;
+
+    wire RegWriteE, MemWriteE, JumpE, BranchE, ALUSrcE;
+    wire [1:0] ResultSrcE;
+    wire [2:0] ALUControlE;
+    wire [4:0] RdE, Rs1E, Rs2E;
     wire [31:0] RD1_E, RD2_E, ImmExtE, PCE, PCPlus4E;
-    
-    // EX/MEM Pipeline Register outputs
-    wire        RegWriteM, MemWriteM, MemReadM;
-    wire [1:0]  ResultSrcM;
-    wire [4:0]  RdM;
+
+    wire RegWriteM, MemWriteM, MemReadM;
+    wire [1:0] ResultSrcM;
+    wire [4:0] RdM;
     wire [31:0] ALUResultM, WriteDataM, PCPlus4M;
-    
-    // MEM/WB Pipeline Register outputs
-    wire        RegWriteW;
-    wire [4:0]  RdW;
+
+    wire RegWriteW;
+    wire [4:0] RdW;
     wire [31:0] ALUResultW, ReadDataW, PCPlus4W, ResultW;
-    wire [1:0]  ResultSrcW;
-    
-    // Control signals for branch/jump
-    wire        PCSrcE;
+    wire [1:0] ResultSrcW;
+
+    wire PCSrcE;
     wire [31:0] PCTargetE;
-    
-    // Hazard control signals
-    wire        StallF, StallD, FlushD, FlushE;
-    wire [1:0]  ForwardAE, ForwardBE;
-    
-    // Instantiate Instruction Fetch stage
+
+    wire StallF, StallD, FlushD, FlushE;
+    wire [1:0] ForwardAE, ForwardBE;
+
     instructionFetch IF_stage(
         .clk(clk),
         .rst(rst),
@@ -47,8 +37,7 @@ module riscv_pipeline_cpu(
         .PCD(PCD),
         .PCPlus4D(PCPlus4D)
     );
-    
-    // Instantiate Instruction Decode stage
+
     instructionDecode ID_stage(
         .clk(clk),
         .rst(rst),
@@ -74,8 +63,7 @@ module riscv_pipeline_cpu(
         .PCE(PCE),
         .PCPlus4E(PCPlus4E)
     );
-    
-    // Instantiate Execute stage
+
     execute_cycle EX_stage(
         .clk(clk),
         .rst(rst),
@@ -109,8 +97,7 @@ module riscv_pipeline_cpu(
         .PCSrcE(PCSrcE),
         .PCTargetE(PCTargetE)
     );
-    
-    // Instantiate Memory stage
+
     memory_cycle MEM_stage(
         .clk(clk),
         .rst(rst),
@@ -129,21 +116,15 @@ module riscv_pipeline_cpu(
         .regWrite_out(RegWriteW),
         .resultSrc_out(ResultSrcW)
     );
-    
-    // Instantiate Write Back stage
+
     writeback_cycle WB_stage(
         .alu_result_in(ALUResultW),
         .read_data_in(ReadDataW),
         .pc_plus4_in(PCPlus4W),
-        .rd_addr_in(RdW),
-        .regWrite_in(RegWriteW),
         .resultSrc_in(ResultSrcW),
-        .write_data_out(ResultW),
-        .rd_addr_out(), // Not used - already connected through memory stage
-        .regWrite_out() // Not used - already connected through memory stage
+        .write_data_out(ResultW)
     );
-    
-    // Instantiate Hazard Unit
+
     hazard_unit HU(
         .Rs1E(Rs1E),
         .Rs2E(Rs2E),
@@ -152,7 +133,7 @@ module riscv_pipeline_cpu(
         .RdW(RdW),
         .RegWriteM(RegWriteM),
         .RegWriteW(RegWriteW),
-        .ResultSrcE(ResultSrcE[0]), // Use LSB for load instruction detection
+        .ResultSrcE(ResultSrcE[0]),
         .PCSrcE(PCSrcE),
         .ForwardAE(ForwardAE),
         .ForwardBE(ForwardBE),
@@ -161,5 +142,4 @@ module riscv_pipeline_cpu(
         .FlushD(FlushD),
         .FlushE(FlushE)
     );
-
 endmodule
