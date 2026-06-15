@@ -2,6 +2,7 @@
 docs/
 
 # Simulation build artifacts
+sim/build/
 sim/*.vvp
 sim/*.out
 sim/*.vcd
