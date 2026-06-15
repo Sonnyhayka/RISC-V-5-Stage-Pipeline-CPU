@@ -6,7 +6,7 @@ module memory_cycle #(
     parameter MEM_DEPTH = 256  // Number of 32-bit words in data memory (adjust as needed)
 )(
     input         clk,
-    input         reset,
+    input         rst,
     input [31:0] alu_result_in,   // ALU result (used as memory address)
     input [31:0] store_data_in,   // Data to store in memory
     input [31:0] pc_plus4_in,     // PC + 4 value
